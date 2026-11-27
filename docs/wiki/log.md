@@ -2,6 +2,15 @@
 
 > 最新记录在最上方。
 
+## [2026-11-27] 完善 CI 并加入发布流程
+
+- CI 增 macOS 任务（`ps` 进程身份与 launchd 定义渲染需要真机验证）+ 版本号格式检查；三个任务（22 / 24 / macos）全绿。
+- 新增 `.github/workflows/release.yml`：推 `v*` 标签触发；校验标签与 `package.json` 版本一致 → `npm run verify` → 包内容白名单 → 从 `CHANGELOG.md` 抽取本版段落作发布说明 → `npm publish --provenance` → `gh release create`。支持 `workflow_dispatch` + `dry_run` 演练。
+- 新增 `CHANGELOG.md`（Keep a Changelog 格式，0.1.0 完整条目），`files` 白名单补 `CHANGELOG.md`。
+- README 增「发布流程」：改版本号 → 写 CHANGELOG → 打标签推送；并说明本地发布与手动演练。
+- 实测：`workflow_dispatch` 演练（`v0.1.0`、`dry_run=true`）通过，发布说明成功从 CHANGELOG 抽出「首个可用版本…」，`npm publish --dry-run` 未上传。
+- 待办：仓库还没有 `NPM_TOKEN` secret，真正发布会停在那一步；`gh secret set NPM_TOKEN` 后打标签即可。
+
 ## [2026-11-27] 删库重建以清除历史隐私
 
 - 旧仓 44 个提交里有 10 个提交残留真实 openid，全部提交带个人 QQ 邮箱；新仓改用单提交重建。
