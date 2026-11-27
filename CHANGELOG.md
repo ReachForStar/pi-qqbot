@@ -2,6 +2,16 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.3] - 2026-11-27
+
+### 修复
+
+- README 徽标与 pi-weixin-bridge 对齐：版本徽标固定为蓝色（shields.io 按语义化版本上色，0.x 默认是橙色，1.0.0 起才会自动变蓝）、许可证徽标黄色、新增 Node >=22 徽标。
+
+### 内部
+
+- `scripts/check-license.sh` 改为 `scripts/check-package-meta.sh`：除许可证外，还校验 `engines.node` 与 README 里的三枚徽标写法，防止徽标与实际配置漂移。
+
 ## [0.1.2] - 2026-11-27
 
 ### 修复
@@ -39,5 +49,6 @@
 - 要求 Node.js ≥ 22；跑在本机的 pi 环境之上，模型与凭据由 pi 侧提供。
 - pi 不内置工具审批，本项目以「白名单 + 独立工作目录 + 工具集收窄」控制风险。
 
+[0.1.3]: https://github.com/ReachForStar/pi-qqbot/releases/tag/v0.1.3
 [0.1.2]: https://github.com/ReachForStar/pi-qqbot/releases/tag/v0.1.2
 [0.1.1]: https://github.com/ReachForStar/pi-qqbot/releases/tag/v0.1.1
