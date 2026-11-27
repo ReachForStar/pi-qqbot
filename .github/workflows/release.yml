@@ -1,0 +1,101 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "要发布的版本标签（例如 v0.1.0）"
+        required: true
+      dry_run:
+        description: "只演练打包与发布命令，不真正上传"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: publish to npm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 校验版本与标签一致
+        env:
+          REF_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          pkg="v$(node -p "require('./package.json').version")"
+          if [ "$REF_NAME" != "$pkg" ]; then
+            echo "标签 $REF_NAME 与 package.json 版本 $pkg 不一致" >&2
+            exit 1
+          fi
+
+      - name: 类型检查、测试与构建
+        run: npm run verify
+
+      - name: 校验发布包内容
+        run: |
+          npm pack --dry-run 2>&1 | tee pack.log
+          grep -q "dist/cli.js" pack.log
+          grep -q "bin/pi-qqbot.js" pack.log
+          grep -q "LICENSE" pack.log
+          if grep -q "pi-qqbot.json" pack.log; then
+            echo "真实配置不应进包" && exit 1
+          fi
+
+      - name: 提取本版本的发布说明
+        env:
+          REF_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          version="${REF_NAME#v}"
+          awk -v v="## [$version]" 'index($0, v) == 1 {flag=1; next} /^## \[/ {flag=0} flag' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ]; then
+            echo "CHANGELOG.md 里没有 $version 的条目，发布说明将由 GitHub 自动生成" >&2
+            rm notes.md
+          fi
+          test ! -f notes.md || cat notes.md
+
+      - name: 发布到 npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "演练模式：不检查 token，也不上传"
+            npm publish --dry-run --access public
+            exit 0
+          fi
+          if [ -z "${NODE_AUTH_TOKEN:-}" ]; then
+            echo "缺少 secrets.NPM_TOKEN，无法发布" >&2
+            exit 1
+          fi
+          npm publish --provenance --access public
+
+      - name: 创建 GitHub Release
+        if: github.event_name == 'push' || inputs.dry_run != true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REF_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          if [ -f notes.md ]; then
+            gh release create "$REF_NAME" --title "$REF_NAME" --notes-file notes.md --verify-tag
+          else
+            gh release create "$REF_NAME" --title "$REF_NAME" --generate-notes --verify-tag
+          fi
