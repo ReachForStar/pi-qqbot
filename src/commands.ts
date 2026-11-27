@@ -191,24 +191,29 @@ const COMMANDS: readonly CommandSpec[] = [
 			if (!ctx.isOwner) return "仅管理员可以查看成员名单";
 			const list = ctx.members.list();
 			if (list.length === 0) return "身份库为空";
+			// 群里执行也能用，所以名单里的 openid 脱敏；移除按序号即可
 			const lines = list.map((member, index) => {
 				const source = member.source === "seed" ? "初始" : "配对";
-				return `${index + 1}. ${member.openid}（${source}，${member.addedAt.slice(0, 10)}）`;
+				return `${index + 1}. ${maskOpenid(member.openid)}（${source}，${member.addedAt.slice(0, 10)}）`;
 			});
-			return [`成员 ${list.length} 人：`, ...lines].join("\n");
+			return [`成员 ${list.length} 人（/revoke <序号> 移除）：`, ...lines].join("\n");
 		},
 	},
 	{
 		name: "revoke",
 		category: "qqbot",
-		description: "移除成员（管理员）：/revoke <openid>",
+		description: "移除成员（管理员）：/revoke <序号|openid>",
 		run: async (ctx, args) => {
 			if (!ctx.isOwner) return "仅管理员可以移除成员";
-			const openid = args.trim();
-			if (!openid) return "用法：/revoke <openid>";
-			// 撤掉自己会同时失去成员与签发资格，只能靠改 .env 恢复
+			const argument = args.trim();
+			if (!argument) return "用法：/revoke <序号>（序号来自 /members）或 /revoke <openid>";
+			// 名单本身脱敏，所以按序号移除是常规路径；完整 openid 也仍然可用
+			const index = Number(argument);
+			const openid = Number.isInteger(index) && index >= 1 ? ctx.members.list()[index - 1]?.openid : argument;
+			if (!openid) return `名单里没有第 ${index} 人`;
+			// 撤掉自己会同时失去成员与签发资格，只能靠改配置恢复
 			if (openid === ctx.openid) return "不能移除自己；请让另一位管理员操作";
-			return ctx.members.revoke(openid) ? `已移除 ${maskOpenid(openid)}` : `名单里没有 ${openid}`;
+			return ctx.members.revoke(openid) ? `已移除 ${maskOpenid(openid)}（可用 /pair 重新签发配对码加入）` : `名单里没有 ${openid}`;
 		},
 	},
 	{

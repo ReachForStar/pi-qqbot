@@ -130,9 +130,23 @@ describe("runCommand", () => {
 		expect(await runCommand("/members", ctx)).toBe("身份库为空");
 		ctx.members.seed(["OPENID_A"]);
 		expect(await runCommand("/members", ctx)).toContain("OPENID_A");
-		expect(await runCommand("/revoke OPENID_A", ctx)).toBe("已移除 OPENID_A");
+		expect(await runCommand("/revoke OPENID_A", ctx)).toContain("已移除 OPENID_A");
 		const guest = { ...context(), isOwner: false };
 		expect(await runCommand("/revoke OPENID_A", guest)).toBe("仅管理员可以移除成员");
+	});
+
+	it("/members 脱敏 openid，/revoke 可按序号移除", async () => {
+		const ctx = context();
+		ctx.members.seed(["A1B2C3D4E5F60718293A4B5C6D7E8F90", "B2C3D4E5F60718293A4B5C6D7E8F9011"]);
+		const list = await runCommand("/members", ctx);
+		expect(list).toContain("A1B2C3…8F90");
+		expect(list).not.toContain("A1B2C3D4E5F60718293A4B5C6D7E8F90");
+		expect(list).toContain("/revoke <序号>");
+
+		expect(await runCommand("/revoke 1", ctx)).toContain("已移除 A1B2C3…8F90");
+		expect(ctx.members.isMember("A1B2C3D4E5F60718293A4B5C6D7E8F90")).toBe(false);
+		expect(ctx.members.isMember("B2C3D4E5F60718293A4B5C6D7E8F9011")).toBe(true);
+		expect(await runCommand("/revoke 9", ctx)).toContain("名单里没有第 9 人");
 	});
 
 	it("不能撤销自己", async () => {

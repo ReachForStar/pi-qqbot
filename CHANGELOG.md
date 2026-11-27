@@ -2,6 +2,17 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.4] - 2026-11-27
+
+### 修复
+
+- **首次配置走不通**：未授权提示里的 openid 被脱敏（`A1B2C3…8F90`），管理员无法据此加白名单，新装用户没有可用路径进入对话。现在私聊回完整「你的 openid」、群聊回完整「本群的 openid」。
+
+### 新增
+
+- `/members` 名单里的 openid 脱敏（群里执行不暴露彼此完整标识），并支持 `/revoke <序号>` 按序号移除；完整 openid 依然可用。
+- 快速开始重写：先决条件（pi 本机可用、开放平台沙箱/上线）、分步命令与预期输出、凭据错误示例、群聊接入步骤、日常操作清单。
+
 ## [0.1.3] - 2026-11-27
 
 ### 修复
@@ -49,6 +60,7 @@
 - 要求 Node.js ≥ 22；跑在本机的 pi 环境之上，模型与凭据由 pi 侧提供。
 - pi 不内置工具审批，本项目以「白名单 + 独立工作目录 + 工具集收窄」控制风险。
 
+[0.1.4]: https://github.com/ReachForStar/pi-qqbot/releases/tag/v0.1.4
 [0.1.3]: https://github.com/ReachForStar/pi-qqbot/releases/tag/v0.1.3
 [0.1.2]: https://github.com/ReachForStar/pi-qqbot/releases/tag/v0.1.2
 [0.1.1]: https://github.com/ReachForStar/pi-qqbot/releases/tag/v0.1.1

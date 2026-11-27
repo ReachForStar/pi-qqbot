@@ -32,27 +32,91 @@
 
 ## 快速开始
 
+### 0. 先决条件
+
+- Node.js ≥ 22。
+- **pi 在本机已经能用**：先在终端跑一次 `pi`，确认模型与凭据配好。桥接不另存模型密钥，直接用 pi 的配置（`~/.pi/agent`）。
+- 一个 QQ 开放平台机器人，拿到 `AppID` 与 `AppSecret`；在开放平台后台确认它能收发消息（沙箱成员或已上线、消息收发权限已开）。
+
+### 1. 安装
+
 ```bash
 npm i -g pi-qqbot
-
-mkdir my-bot && cd my-bot
-cp "$(npm root -g)/pi-qqbot/pi-qqbot.example.json" ./pi-qqbot.json
-# 编辑 pi-qqbot.json：至少填 appId、appSecret
+pi-qqbot version      # 期望：pi-qqbot v0.1.4
 ```
 
-启动并确认连接：
+不想全局安装就用 `npx pi-qqbot <命令>`。
+
+### 2. 建配置
+
+配置读的是**执行命令时所在目录**的 `pi-qqbot.json`，所以先固定一个目录：
 
 ```bash
-pi-qqbot start      # 后台启动，等到「已连接 QQ 开放平台」才返回
-pi-qqbot status     # PID、已运行时长
-pi-qqbot logs 30    # 最近 30 行日志
+mkdir my-bot && cd my-bot
+cp "$(npm root -g)/pi-qqbot/pi-qqbot.example.json" ./pi-qqbot.json
 ```
 
-第一次给机器人发消息时，它会回复自己的 openid 并说明加入方式（因为白名单还是空的）：
+最小只需改两项，其余按默认即可：
 
-1. 把这串 openid 填进 `pi-qqbot.json` 的 `allow` 数组（或 `owner`）；
-2. `pi-qqbot restart`；
-3. 之后随时用 `/pair` 给其他人发配对码，不必再改配置。
+```json
+{
+  "appId": "1000000000",
+  "appSecret": "你的AppSecret"
+}
+```
+
+### 3. 启动
+
+```bash
+pi-qqbot start
+```
+
+成功时输出 `已启动并就绪（PID …）`，日志在 `<stateDir>/bot.log`（默认 `~/.pi-qqbot`）。
+
+失败时会直接打印日志尾部，例如凭据不对：
+
+```
+启动失败：Error: Failed to get access_token: {"code":10004,"message":"机器人不存在"}
+```
+
+### 4. 第一次对话：把自己放进名单
+
+默认 `allow` 为空，任何人都用不了。给机器人发一条**私聊**消息，它会回：
+
+```
+未授权，两种加入方式：
+1）管理员发 /pair 生成配对码，把这串码发给我即可加入（同一个码可加多人）；
+2）把下面的 openid 交给管理员，填进 pi-qqbot.json 的 allow 或 owner，然后重启服务。
+
+你的 openid：A1B2C3D4E5F6…
+```
+
+把这串 openid 填进 `pi-qqbot.json` 的 `owner`（管理员），然后：
+
+```bash
+pi-qqbot restart
+```
+
+再发消息就能正常对话。之后加其他人用 `/pair`，不必再改配置或重启。
+
+### 5. 群聊
+
+1. 把机器人拉进群，在群里发一条消息（不必 @，未授权时也会被回）；
+2. 机器人回 `本群的 openid：…`；
+3. 把该 openid 填进 `allow`，`pi-qqbot restart`；
+4. 群里默认要 **@ 机器人**才响应（`requireMention: true`）。
+
+### 6. 日常操作
+
+```bash
+pi-qqbot status      # 运行中？PID 与已运行时长
+pi-qqbot logs 30     # 最近 30 行日志
+pi-qqbot restart     # 改了配置后重启
+pi-qqbot stop        # 停止
+pi-qqbot install     # 生成用户级 systemd / launchd 自启定义
+```
+
+对话里发 `/help` 看全部命令；发 `/me` 看自己的 openid。
 
 ## 配置
 
@@ -147,10 +211,15 @@ npm run dev              # watch 模式
 
 成员保存在 `<stateDir>/members.json`，**加人减人都不用改配置、不用重启**。
 
+| 操作 | 命令 | 说明 |
+| --- | --- | --- |
+| 签发配对码 | `/pair [分钟]` | 8 位码（去掉易混字符），默认 10 分钟、上限 24 小时；同一个码可连续加多人 |
+| 认领 | 直接把码发给机器人 | 私聊、群聊都支持；成功后回「已加入名单」 |
+| 看名单 | `/members` | 序号 + 脱敏 openid + 来源与日期；群里执行也不会暴露彼此的完整标识 |
+| 移除 | `/revoke <序号>` 或 `/revoke <openid>` | 撤销后旧码失效，要重新 `/pair` |
+
 - 首次启动把 `allow` 里的 openid 导入为种子成员；种子被移除后不会被再次导入。
-- `/pair` 生成的 8 位码可以让多人先后加入，到期自动失效。
-- `/revoke` 之后，撤销前签发的码无法把人加回来，需要重新 `/pair`。
-- 被撤销的成员若还留着旧码，会收到「这个配对码已失效，请向管理员要新的码」。
+- 管理员是 `owner`；留空时 `allow` 里的人都是管理员。两者都空时没人能签发配对码——陌生人自助进名单是不允许的。
 
 ## 会话与技能
 
@@ -181,8 +250,8 @@ npm run dev              # watch 模式
 | --- | --- |
 | `✖ 缺少 appId` | 当前工作目录没有 `pi-qqbot.json`，或没填 `appId`；也可用 `QQBOT_APPID` 注入 |
 | `已有实例在运行（PID …）` | 同一 `stateDir` 已有进程；`pi-qqbot stop` 或换 `stateDir` |
-| `启动未就绪` + `Failed to get access_token` | AppID/AppSecret 不对，或机器人在开放平台被停用 |
-| 群里发消息没反应 | 默认需要 @ 机器人；或该群 openid 未在名单里（先私聊配对） |
+| `启动未就绪` + `Failed to get access_token: {"code":10004,...}` | AppID 或 AppSecret 不对，或机器人在开放平台未上线/被停用 |
+| 群里发消息没反应 | 默认需要 @ 机器人；或该群 openid 不在名单里（群里发一条消息，机器人会回 `本群的 openid`） |
 | 回复只有一半 | 长回复被切分；调 `chunkMode: paragraph` 或增大 `replyLimit` |
 | 工具调用刷屏 | 设 `toolDisplay: "summary"`（默认已开） |
 | 想让它在该群里偶尔接话 | 设 `groupReplyChance: 0.1`（上限 1） |

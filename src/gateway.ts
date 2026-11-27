@@ -23,7 +23,7 @@ import type { SessionRouter } from "./router.ts";
 import { createSink, TEXT_LIMIT } from "./sink.ts";
 import { peerKey, type Sink } from "./types.ts";
 import { join } from "node:path";
-import { maskOpenid } from "./format.ts";
+import { unauthorizedText } from "./format.ts";
 import { MappingStore } from "./store.ts";
 
 export interface GatewayOptions {
@@ -127,7 +127,7 @@ export function startGateway({ config, router, log }: GatewayOptions): Gateway {
 			// 拿不到授权的人不应该能驱动本机的 shell 与文件编辑
 			await bot.sendText(
 				message.replyTarget,
-				`未授权。把你的 openid 发给管理员，或让管理员用 /pair 生成配对码后发给我。\n你的 openid：${maskOpenid(senderId)}`,
+				unauthorizedText(peer.scope === "group" ? "group" : "c2c", senderId, peer.peerId),
 			);
 			return;
 		}

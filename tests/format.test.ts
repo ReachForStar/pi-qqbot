@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatToolLine, formatToolResult, maskOpenid } from "../src/format.ts";
+import { formatToolLine, formatToolResult, maskOpenid, unauthorizedText } from "../src/format.ts";
 
 describe("formatToolLine", () => {
 	it("优先用 command/path 之类的关键参数", () => {
@@ -54,5 +54,20 @@ describe("maskOpenid", () => {
 
 	it("短标识原样返回", () => {
 		expect(maskOpenid("ABC123")).toBe("ABC123");
+	});
+});
+
+describe("unauthorizedText", () => {
+	it("私聊给出发送者完整 openid", () => {
+		const text = unauthorizedText("c2c", "USER_OPENID_FULL", "GROUP_OPENID");
+		expect(text).toContain("你的 openid：USER_OPENID_FULL");
+		expect(text).not.toContain("GROUP_OPENID");
+		expect(text).toContain("/pair");
+		expect(text).toContain("allow");
+	});
+
+	it("群聊给出群 openid，管理员据此加群", () => {
+		const text = unauthorizedText("group", "USER_OPENID_FULL", "GROUP_OPENID");
+		expect(text).toContain("本群的 openid：GROUP_OPENID");
 	});
 });
