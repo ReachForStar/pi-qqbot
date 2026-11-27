@@ -1,6 +1,6 @@
 {
 	"name": "pi-qqbot",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"type": "module",
 	"description": "把 pi agent 接入 QQ 私聊与群聊的桥接服务（含后台服务与身份库）",
 	"scripts": {

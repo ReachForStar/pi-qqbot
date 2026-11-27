@@ -2,9 +2,11 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [0.1.0] - 2026-11-27
+## [0.1.1] - 2026-11-27
 
-首个可用版本：把 pi agent 接到 QQ 私聊与群聊。
+首个发布到 npm 的版本：把 pi agent 接到 QQ 私聊与群聊。
+
+> 版本号从 0.1.0 起跳：npm 上 `pi-qqbot@0.1.0` 曾被他人发布后撤回，该版本号不可复用，因此首个发布版本为 0.1.1。
 
 ### 新增
 
@@ -27,4 +29,4 @@
 - 要求 Node.js ≥ 22；跑在本机的 pi 环境之上，模型与凭据由 pi 侧提供。
 - pi 不内置工具审批，本项目以「白名单 + 独立工作目录 + 工具集收窄」控制风险。
 
-[0.1.0]: https://github.com/ReachForStar/pi-qqbot/releases/tag/v0.1.0
+[0.1.1]: https://github.com/ReachForStar/pi-qqbot/releases/tag/v0.1.1
