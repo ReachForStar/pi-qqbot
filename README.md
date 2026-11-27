@@ -233,4 +233,6 @@ node --import tsx tests/integration-reload.ts   # 技能重载与 /new 行为
 
 ## License
 
-[MIT](./LICENSE)
+[MIT](./LICENSE) © 2026 ReachForStar
+
+可自由使用、修改、分发与商用，保留版权声明与许可声明即可；软件按「现状」提供，不附带担保。
