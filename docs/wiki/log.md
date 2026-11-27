@@ -2,6 +2,12 @@
 
 > 最新记录在最上方。
 
+## [2026-11-27] 徽标对齐 pi-weixin-bridge 并发布 0.1.3
+
+- 查明版本徽标是橙色而非蓝色：shields.io 的 `npm/v` 按语义化版本上色，0.x 一律橙色、≥1.0 才蓝色（实测 `ms` 蓝、`wtfnode` 橙、`tinygrad` 橙），不是错误。
+- README 徽标改为四枚并与 `pi-weixin-bridge` 对齐：版本 `?color=blue`、`License-MIT-yellow`、`Node-%3E%3D22-339933`；许可证校验脚本升级为 `scripts/check-package-meta.sh`，同时校验 `license`、`engines.node` 与 README 里三枚徽标写法是否存在（实测改 engines、删徽标都会失败）。
+- 发布 0.1.3：CI 三任务绿；Release 任务 3m55s 成功（registry 生效慢，靠 10 分钟轮询等到位），`latest` 指向 0.1.3，徽标 URL 实取到 blue / yellow / #339933。
+
 ## [2026-11-27] 修徽标报错并发布 0.1.2
 
 - 现象：npm 页面许可证徽标显示 `package not found`。根因是 `img.shields.io/npm/l/pi-qqbot` 在 0.1.1 被 npm 暂存期间查不到包，而 shields 对错误结果缓存 4 小时（`cache-control: max-age=14400`）。

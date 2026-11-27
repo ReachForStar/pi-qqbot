@@ -49,9 +49,11 @@ status: active
 ## 仓库与 CI（2026-11-27）
 
 - 远端：<https://github.com/ReachForStar/pi-qqbot>（public，默认分支 `main`）。
-- CI：`.github/workflows/ci.yml`，Node 22、Node 24 与 macOS 三个任务（macOS 用于验证 `ps` 进程身份与 launchd 渲染），步骤为 `npm ci` → typecheck → `npm test` → build → `npm pack --dry-run` 白名单校验（缺 `dist/cli.js`、`bin/pi-qqbot.js` 或混入真实 `pi-qqbot.json` 即失败）、`scripts/check-license.sh` 许可证校验。
+- CI：`.github/workflows/ci.yml`，Node 22、Node 24 与 macOS 三个任务（macOS 用于验证 `ps` 进程身份与 launchd 渲染），步骤为 `npm ci` → typecheck → `npm test` → build → `npm pack --dry-run` 白名单校验（缺 `dist/cli.js`、`bin/pi-qqbot.js` 或混入真实 `pi-qqbot.json` 即失败）、`scripts/check-package-meta.sh` 校验 `license`、`engines.node` 与 README 徽标写法一致。
 - 发布：推 `v*` 标签触发 `.github/workflows/release.yml`（版本与标签一致 → verify → 包内容 → 许可证 → 从 `CHANGELOG.md` 抽本版段落作 release note → `npm publish --provenance` → 回查 registry 可见性 → `gh release create`）。发布步骤幂等，重跑只会补 Release。
-- README 的许可证徽标用静态 `badge/license-MIT-green`：`img.shields.io/npm/l/...` 在 npm 暂存发布期间取不到包，会渲染成 `package not found`，且错误结果缓存 4 小时。
+- README 徽标四枚，与 `pi-weixin-bridge` 一致：CI、npm 版本（`?color=blue`）、`License-MIT-yellow`、`Node-%3E%3D22-339933`。
+  - 版本徽标必须显式指定颜色：shields.io 按语义化版本上色，**0.x 默认橙色**，1.0.0 起才自动变蓝（实测 `ms@2.1.3` 蓝、`wtfnode@0.10.1` 橙）。
+  - 许可证徽标用静态样式：`img.shields.io/npm/l/...` 在 npm 暂存发布期间取不到包会渲染成 `package not found`，且错误结果缓存 4 小时。
 - 弃用 Node 20 的原因：vitest 5 依赖 `Map.groupBy`（Node 22+），在 20 上测试进程直接崩，`engines` 同步改为 `>=22`。action 用 `checkout@v7` / `setup-node@v7`，不再出现 Node 20 弃用告警。
 
 ## 配置来源（2026-11-27 改为 JSON 文件）
