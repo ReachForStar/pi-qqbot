@@ -2,6 +2,16 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.2] - 2026-11-27
+
+### 修复
+
+- README 的许可证徽标改为静态样式：原来的 `img.shields.io/npm/l/...` 在 0.1.1 被 npm 暂存期间取不到包，渲染成 `package not found`；该端点的错误结果有 4 小时缓存，即使 registry 恢复也不会立刻更新。
+
+### 新增
+
+- CI 与发布流程增加许可证校验：`package.json` 的 `license` 必须是 MIT、`LICENSE` 必须含 MIT 全文，否则构建失败。静态徽标因此不会与实际授权漂移。
+
 ## [0.1.1] - 2026-11-27
 
 首个发布到 npm 的版本：把 pi agent 接到 QQ 私聊与群聊。
@@ -29,4 +39,5 @@
 - 要求 Node.js ≥ 22；跑在本机的 pi 环境之上，模型与凭据由 pi 侧提供。
 - pi 不内置工具审批，本项目以「白名单 + 独立工作目录 + 工具集收窄」控制风险。
 
+[0.1.2]: https://github.com/ReachForStar/pi-qqbot/releases/tag/v0.1.2
 [0.1.1]: https://github.com/ReachForStar/pi-qqbot/releases/tag/v0.1.1

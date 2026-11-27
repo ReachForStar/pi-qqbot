@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/ReachForStar/pi-qqbot/actions/workflows/ci.yml/badge.svg)](https://github.com/ReachForStar/pi-qqbot/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/pi-qqbot)](https://www.npmjs.com/package/pi-qqbot)
-[![license](https://img.shields.io/npm/l/pi-qqbot)](./LICENSE)
+[![license: MIT](https://img.shields.io/badge/license-MIT-green)](https://github.com/ReachForStar/pi-qqbot/blob/main/LICENSE)
 
 把 [pi](https://github.com/earendil-works/pi) agent 接到 QQ 私聊与群聊：QQ 消息进来驱动一次 pi 会话，pi 的回复与工具活动回送到 QQ。
 

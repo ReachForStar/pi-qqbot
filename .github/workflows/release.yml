@@ -60,6 +60,9 @@ jobs:
             echo "真实配置不应进包" && exit 1
           fi
 
+      - name: 许可证校验
+        run: bash scripts/check-license.sh
+
       - name: 提取本版本的发布说明
         env:
           REF_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
