@@ -49,7 +49,9 @@ status: active
 ## 仓库与 CI（2026-11-27）
 
 - 远端：<https://github.com/ReachForStar/pi-qqbot>（public，默认分支 `main`）。
-- CI：`.github/workflows/ci.yml`，Node 22 与 24 矩阵，步骤为 `npm ci` → typecheck → `npm test` → build → `npm pack --dry-run` 白名单校验（缺 `dist/cli.js`、`bin/pi-qqbot.js` 或混入真实 `pi-qqbot.json` 即失败）。
+- CI：`.github/workflows/ci.yml`，Node 22、Node 24 与 macOS 三个任务（macOS 用于验证 `ps` 进程身份与 launchd 渲染），步骤为 `npm ci` → typecheck → `npm test` → build → `npm pack --dry-run` 白名单校验（缺 `dist/cli.js`、`bin/pi-qqbot.js` 或混入真实 `pi-qqbot.json` 即失败）、`scripts/check-license.sh` 许可证校验。
+- 发布：推 `v*` 标签触发 `.github/workflows/release.yml`（版本与标签一致 → verify → 包内容 → 许可证 → 从 `CHANGELOG.md` 抽本版段落作 release note → `npm publish --provenance` → 回查 registry 可见性 → `gh release create`）。发布步骤幂等，重跑只会补 Release。
+- README 的许可证徽标用静态 `badge/license-MIT-green`：`img.shields.io/npm/l/...` 在 npm 暂存发布期间取不到包，会渲染成 `package not found`，且错误结果缓存 4 小时。
 - 弃用 Node 20 的原因：vitest 5 依赖 `Map.groupBy`（Node 22+），在 20 上测试进程直接崩，`engines` 同步改为 `>=22`。action 用 `checkout@v7` / `setup-node@v7`，不再出现 Node 20 弃用告警。
 
 ## 配置来源（2026-11-27 改为 JSON 文件）

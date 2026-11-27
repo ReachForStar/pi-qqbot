@@ -2,6 +2,14 @@
 
 > 最新记录在最上方。
 
+## [2026-11-27] 修徽标报错并发布 0.1.2
+
+- 现象：npm 页面许可证徽标显示 `package not found`。根因是 `img.shields.io/npm/l/pi-qqbot` 在 0.1.1 被 npm 暂存期间查不到包，而 shields 对错误结果缓存 4 小时（`cache-control: max-age=14400`）。
+- 修法：徽标改为静态 `badge/license-MIT-green`，并新增 `scripts/check-license.sh`（`package.json.license` 必须为 MIT、`LICENSE` 必须含 MIT 全文）挂进 CI 与发布流程，保证静态声明不会与实际授权漂移。
+- 发布：0.1.2 首发时「可见性回查」只等 2 分钟就失败（registry 实际约 3.5 分钟才生效），且 `npm stage list` 在 runner 的 npm 上不存在。改为轮询最多 10 分钟、发布步骤容忍 409「previously published/staged」、`npm stage` 命令存在才调用；重跑成功建出 Release。
+- 结果：`pi-qqbot@0.1.2` 为 latest，Release v0.1.1 与 v0.1.2 均在；下载已发布 tarball 核对：README 徽标正确、`license: MIT`、`LICENSE` 在包内、`src/tests/docs` 未入包。
+- CI 与 Release 运行均 success。
+
 ## [2026-11-27] 发布 0.1.1 到 npm
 
 - 首次打 `v0.1.0` 失败：npm 上该版本曾被他人发布后撤回，版本号不可复用 → 改版本号 0.1.1（CHANGELOG 保留说明）。
