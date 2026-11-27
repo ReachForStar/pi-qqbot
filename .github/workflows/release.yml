@@ -94,6 +94,13 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REF_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
         run: |
+          # 重跑时 Release 可能已存在：存在就更新说明，不重复创建
+          if gh release view "$REF_NAME" >/dev/null 2>&1; then
+            if [ -f notes.md ]; then
+              gh release edit "$REF_NAME" --notes-file notes.md
+            fi
+            exit 0
+          fi
           if [ -f notes.md ]; then
             gh release create "$REF_NAME" --title "$REF_NAME" --notes-file notes.md --verify-tag
           else
