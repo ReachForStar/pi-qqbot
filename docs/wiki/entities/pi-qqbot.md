@@ -93,6 +93,10 @@ status: active
 - **真实 pi 链路**（`tests/integration-agent.ts`）：创建会话 → `prompt` → 工具调用（`▸ ls`）→ 文本增量 → `settled` 收尾 → 会话文件落盘 → 用同一文件恢复，状态显示历史保留（用户 1 条、助手 2 条、工具调用 1 次）。
 - **单元测试**：6 个文件 27 项通过（切分、映射表、路由、事件绑定、命令、配置）；`tsc --noEmit` 无错误。
 
+## 开发与发布的一致性（易踩）
+
+`npm run service -- …` 与发布包一样优先跑 `dist/main.js`：**只改 `src/` 不 build，重启后仍是旧代码**。开发时要么先 `npm run build`，要么直接前台 `npm start`（走 tsx）。
+
 ## 运维
 
 ```bash
@@ -136,8 +140,9 @@ tail -f .pi-qqbot/bot.log     # 观察连接、启动配置与会话
 | --- | --- | --- |
 | 通用能力 | `/new`（`/reset`）、`/compact`、`/model [名称]`、`/stop` | 对应 pi 的会话/压缩/模型/中止 |
 | 机器人能力 | `/status`（`/bot-status`）、`/ping`（`/bot-ping`）、`/version`、`/me`（`/whoami`）、`/reload`、`/help` | 通道自身能力 |
+| 管理员 | `/pair [分钟]`、`/members`、`/revoke <序号\|openid>` | 身份库管理，仅 owner |
 
-`/ping` 用 QQ 事件时间与网关接收时间拆出「网络传输 / 插件处理」两段；`/help` 按上述两组渲染，与 dsh-qqbot 的 `/bot-help` 结构一致。命令只拦已知名字，`/etc/hosts` 这类内容照旧进模型。
+未授权提示由 `format.ts#unauthorizedText` 生成，**给出完整 openid**（私聊是发送者自己的、群聊是本群的）：脱敏会让首次配置无路可走。`/members` 名单里的 openid 才脱敏（群里执行不暴露彼此完整标识），`/revoke` 因此支持按序号移除。`/ping` 用 QQ 事件时间与网关接收时间拆出「网络传输 / 插件处理」两段；`/help` 按上述两组渲染，与 dsh-qqbot 的 `/bot-help` 结构一致。命令只拦已知名字，`/etc/hosts` 这类内容照旧进模型。
 
 ## 忙时处理与限流
 
