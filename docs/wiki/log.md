@@ -2,6 +2,13 @@
 
 > 最新记录在最上方。
 
+## [2026-11-27] 删库重建以清除历史隐私
+
+- 旧仓 44 个提交里有 10 个提交残留真实 openid，全部提交带个人 QQ 邮箱；新仓改用单提交重建。
+- 做法：`git checkout --orphan` 生成单提交（78 个文件）→ `gh repo delete` → `gh repo create` → 推送 `clean-main:main`；提交作者改用 GitHub noreply（`58105458+ReachForStar@users.noreply.github.com`），并写进本仓库的 `user.email`。
+- 旧历史只保留本地 `legacy-backup` 分支，不推送；确认远端 `commits` 长度 1、默认分支 `main`、抽查文件无 openid/AppID/邮箱/model 前缀。
+- CI 在新仓首跑 success（19s）。
+
 ## [2026-11-27] 隐私扫描
 
 - 扫描当前树 + 全部 42 个提交：无 AppSecret、无本机路径与用户名、无 token。
