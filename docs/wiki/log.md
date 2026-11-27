@@ -2,6 +2,14 @@
 
 > 最新记录在最上方。
 
+## [2026-11-27] 发布 0.1.1 到 npm
+
+- 首次打 `v0.1.0` 失败：npm 上该版本曾被他人发布后撤回，版本号不可复用 → 改版本号 0.1.1（CHANGELOG 保留说明）。
+- 第二次发现 npm 的「暂存发布」行为：账户要求 2FA 而 token 无法完成验证时，`npm publish` 返回 0 但版本只进暂存区（registry 里只留 `0.0.0-stage` 占位），对外不可见。当时 CI 仍建了 GitHub Release，属误报。
+- 修 CI：发布后回查 `npm view pi-qqbot@<version>`（最多 20×6 秒），拿不到就失败并打印 `npm stage list`；发布步骤改为幂等（已存在则跳过上传），重跑可直接补 Release。
+- 最终结果：`pi-qqbot@0.1.1` 已上线（`latest`），GitHub Release `v0.1.1` 带 CHANGELOG 抽取的说明；干净目录实测 `npm install pi-qqbot@0.1.1` 后 `pi-qqbot version` 返回 `v0.1.1`。
+- 遗留：registry 的 `versions` 里仍有 `0.0.0-stage` 占位（npm 暂存机制的产物），不影响安装。
+
 ## [2026-11-27] 完善 CI 并加入发布流程
 
 - CI 增 macOS 任务（`ps` 进程身份与 launchd 定义渲染需要真机验证）+ 版本号格式检查；三个任务（22 / 24 / macos）全绿。
