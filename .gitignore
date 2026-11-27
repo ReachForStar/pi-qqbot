@@ -1,0 +1,9 @@
+tmp/
+task_todo/
+.qmd/
+node_modules/
+dist/
+*.tgz
+.env
+.pi-qqbot/
+pi-qqbot.json

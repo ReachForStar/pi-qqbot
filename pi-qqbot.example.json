@@ -1,0 +1,39 @@
+{
+	"appId": "你的AppID",
+	"appSecret": "你的AppSecret",
+
+	"allow": ["私聊用户 openid", "群 openid"],
+	"owner": ["管理员 openid"],
+
+	"stateDir": "~/.pi-qqbot",
+	"model": "",
+	"thinking": "low",
+
+	"tools": ["read", "ls", "grep", "find", "edit", "write", "bash"],
+	"requireMention": true,
+	"streaming": true,
+	"idleMs": 1800000,
+
+	"typing": true,
+	"markdown": false,
+	"toolDisplay": "summary",
+	"mode": "queue",
+	"ratePerMinute": 20,
+	"timeoutMs": 1800000,
+
+	"replyLimit": 5,
+	"replyTtlMs": 300000,
+	"chunkMode": "chunk",
+	"paragraphLimit": 3,
+
+	"stickerDir": "",
+	"stickerMax": 1,
+
+	"ignoreBots": true,
+	"groupReplyChance": 0,
+	"injectTimestamp": true,
+	"noReplyToken": "NO_REPLY",
+	"persona": "",
+
+	"debug": false
+}

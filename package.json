@@ -1,0 +1,66 @@
+{
+	"name": "pi-qqbot",
+	"version": "0.1.0",
+	"type": "module",
+	"description": "把 pi agent 接入 QQ 私聊与群聊的桥接服务（含后台服务与身份库）",
+	"scripts": {
+		"build": "tsc -p tsconfig.build.json",
+		"typecheck": "tsc --noEmit",
+		"test": "vitest run",
+		"verify": "npm run typecheck && npm test && npm run build",
+		"prepublishOnly": "npm run verify",
+		"service": "node --import tsx src/cli.ts",
+		"start": "node --import tsx src/main.ts",
+		"dev": "node --watch --import tsx src/main.ts"
+	},
+	"dependencies": {
+		"@earendil-works/pi-coding-agent": "^1.6.1",
+		"@tencent-connect/qqbot-nodejs": "^1.0.6"
+	},
+	"devDependencies": {
+		"@types/node": "^26.6.11",
+		"tsx": "^4.23.15",
+		"typescript": "^7.0.2",
+		"vitest": "^5.1.2"
+	},
+	"keywords": [
+		"pi",
+		"pi-coding-agent",
+		"qqbot",
+		"qq",
+		"agent",
+		"bridge",
+		"bot"
+	],
+	"license": "MIT",
+	"bin": {
+		"pi-qqbot": "bin/pi-qqbot.js"
+	},
+	"main": "./dist/cli.js",
+	"exports": {
+		".": "./dist/cli.js",
+		"./package.json": "./package.json"
+	},
+	"files": [
+		"dist",
+		"bin",
+		"pi-qqbot.example.json",
+		"README.md",
+		"LICENSE"
+	],
+	"engines": {
+		"node": ">=22"
+	},
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ReachForStar/pi-qqbot.git"
+	},
+	"homepage": "https://github.com/ReachForStar/pi-qqbot#readme",
+	"bugs": {
+		"url": "https://github.com/ReachForStar/pi-qqbot/issues"
+	}
+}
