@@ -94,22 +94,35 @@ jobs:
             echo "缺少 secrets.NPM_TOKEN，无法发布" >&2
             exit 1
           fi
-          npm publish --provenance --access public
+          # 账户开启 2FA 时 npm 会「暂存」发布：重跑会拿到 409，
+          # 这种情况交给下一步的可见性轮询判定，不在这里报错
+          npm publish --provenance --access public 2>&1 | tee publish.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" != "0" ]; then
+            if grep -qE "previously (published|staged) version" publish.log; then
+              echo "该版本已在 registry 或暂存队列里，继续等待可见" >&2
+            else
+              exit "$status"
+            fi
+          fi
 
       - name: 确认版本已在 registry 可见
         run: |
           # npm 在账户要求 2FA 而 token 无法完成验证时会「暂存」发布并返回 0，
           # 版本并不真正对外可见（registry 里只留 0.0.0-stage 占位），所以必须回查
           version="$(node -p "require('./package.json').version")"
-          for _ in $(seq 1 20); do
+          # registry 生效有几分钟延迟，且 2FA 暂存也要时间：轮询最多 10 分钟
+          for _ in $(seq 1 60); do
             if npm view "pi-qqbot@$version" version >/dev/null 2>&1; then
               echo "已发布并可安装：pi-qqbot@$version"
               exit 0
             fi
-            sleep 6
+            sleep 10
           done
-          echo "版本 $version 未出现在 registry：很可能被暂存，等待 2FA 审批" >&2
-          npm stage list pi-qqbot || true
+          echo "版本 $version 十分钟内未出现在 registry：可能被 2FA 暂存，请到 npm 网站确认" >&2
+          if npm help stage >/dev/null 2>&1; then
+            npm stage list "pi-qqbot" || true
+          fi
           exit 1
 
       - name: 创建 GitHub Release
